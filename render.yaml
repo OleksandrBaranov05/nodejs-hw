@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: nodejs-hw
+    env: node
+    plan: free
+    buildCommand: "npm ci"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render сам надає PORT; окремо задавати не потрібно
