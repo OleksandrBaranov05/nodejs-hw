@@ -1,5 +1,6 @@
-// мінімальна сучасна конфігурація ESM для ESLint 9+
+// ESLint 9+ ESM config
 import js from '@eslint/js';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -7,10 +8,10 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
+     
       globals: {
-        process: 'readonly',
-        module: 'readonly',
-        require: 'readonly'
+        ...globals.node,
+        ...globals.browser,
       },
     },
     rules: {
