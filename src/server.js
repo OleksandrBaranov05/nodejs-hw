@@ -8,6 +8,7 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
+
 import notesRoutes from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 
@@ -16,20 +17,26 @@ dotenv.config();
 const app = express();
 
 app.use(logger);
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
-// auth
+// AUTH ROUTES
 app.use(authRoutes);
-// notes
+
+// NOTES ROUTES (після auth!)
 app.use(notesRoutes);
 
-// celebrate помилки
+// CELEBRATE VALIDATION ERRORS
 app.use(errors());
 
-// 404 та 500
+// 404
 app.use(notFoundHandler);
+
+// GLOBAL ERROR HANDLER
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;

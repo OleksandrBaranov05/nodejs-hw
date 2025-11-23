@@ -1,56 +1,42 @@
-import { celebrate, Joi, Segments } from 'celebrate';
+import { Joi, Segments } from 'celebrate';
 import mongoose from 'mongoose';
 import { TAGS } from '../constants/tags.js';
 
-// GET /notes — query
-export const getAllNotesSchema = celebrate({
+const isValidObjectId = (value, helpers) => {
+  if (!mongoose.isValidObjectId(value)) {
+    return helpers.error('any.invalid');
+  }
+  return value;
+};
+
+export const getAllNotesSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     perPage: Joi.number().integer().min(5).max(20).default(10),
     tag: Joi.string().valid(...TAGS).optional(),
-    // дозволяємо порожній рядок
     search: Joi.string().allow('').optional(),
   }),
-});
+};
 
-// :noteId в params з кастомним чекером
-export const noteIdSchema = celebrate({
+export const noteIdSchema = {
   [Segments.PARAMS]: Joi.object({
-    noteId: Joi.string()
-      .custom((value, helpers) => {
-        if (!mongoose.isValidObjectId(value)) {
-          return helpers.error('any.invalid');
-        }
-        return value;
-      }, 'ObjectId validation')
-      .messages({ 'any.invalid': 'Invalid noteId' }),
+    noteId: Joi.string().custom(isValidObjectId, 'ObjectId validation'),
   }),
-});
+};
 
-// POST /notes — body
-export const createNoteSchema = celebrate({
+export const createNoteSchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(1).required(),
     content: Joi.string().allow('').optional(),
     tag: Joi.string().valid(...TAGS).optional(),
   }),
-});
+};
 
-// PATCH /notes/:noteId — params + body в одній схемі
-export const updateNoteSchema = celebrate({
-  [Segments.PARAMS]: Joi.object({
-    noteId: Joi.string()
-      .custom((value, helpers) => {
-        if (!mongoose.isValidObjectId(value)) {
-          return helpers.error('any.invalid');
-        }
-        return value;
-      })
-      .messages({ 'any.invalid': 'Invalid noteId' }),
-  }),
+export const updateNoteSchema = {
+  [Segments.PARAMS]: noteIdSchema[Segments.PARAMS],
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(1),
     content: Joi.string().allow(''),
     tag: Joi.string().valid(...TAGS),
   }).min(1), // хоча б одне поле
-});
+};

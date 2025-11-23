@@ -8,23 +8,34 @@ import {
   updateNote,
   deleteNote,
 } from '../controllers/notesController.js';
+
 import {
   getAllNotesSchema,
   noteIdSchema,
   createNoteSchema,
   updateNoteSchema,
 } from '../validations/notesValidation.js';
+
 import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-// всі маршрути нотаток тільки для авторизованих
+// Усі роуты нотаток захищаємо authenticate (якщо вже зробив аутентифікацію)
 router.use(authenticate);
 
+// GET /notes
 router.get('/notes', celebrate(getAllNotesSchema), getAllNotes);
+
+// GET /notes/:noteId
 router.get('/notes/:noteId', celebrate(noteIdSchema), getNoteById);
+
+// POST /notes
 router.post('/notes', celebrate(createNoteSchema), createNote);
+
+// PATCH /notes/:noteId
 router.patch('/notes/:noteId', celebrate(updateNoteSchema), updateNote);
+
+// DELETE /notes/:noteId
 router.delete('/notes/:noteId', celebrate(noteIdSchema), deleteNote);
 
 export default router;
