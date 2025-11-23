@@ -1,16 +1,14 @@
 import createHttpError from 'http-errors';
+const { HttpError } = createHttpError;
 
 export const errorHandler = (err, req, res, _next) => {
- 
-  req.log?.error(err);
+  // лог за бажанням
+  req?.log?.error?.(err);
 
-  if (createHttpError.isHttpError(err)) {
-    const status = err.status ?? err.statusCode ?? 500;
-    const message = err.message || err.name || 'Error';
-    return res.status(status).json({ message });
+  if (err instanceof HttpError) {
+    return res.status(err.status).json({ message: err.message || err.name });
   }
 
-  
-  const message = err.message || err.name || 'Internal Server Error';
-  return res.status(500).json({ message });
+  // інші (не-HTTP) помилки — це 500
+  return res.status(500).json({ message: err.message || 'Server error' });
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { errors as celebrateErrors } from 'celebrate';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
@@ -11,27 +12,24 @@ import notesRoutes from './routes/notesRoutes.js';
 dotenv.config();
 
 const app = express();
-
-// middleware
 app.use(logger);
 app.use(cors());
 app.use(express.json());
 
-// РОУТИ (без префікса у server.js)
 app.use(notesRoutes);
 
-// 404 та помилки
+// 404
 app.use(notFoundHandler);
+
+// помилки celebrate (валідація)
+app.use(celebrateErrors());
+
+// загальний error handler
 app.use(errorHandler);
 
-// спочатку конект до БД, потім стартуємо сервер
 const PORT = process.env.PORT || 3000;
-
 const start = async () => {
   await connectMongoDB();
-  app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
 };
-
 start();
