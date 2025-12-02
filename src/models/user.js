@@ -1,4 +1,6 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
+
+const { Schema, model } = mongoose;
 
 const userSchema = new Schema(
   {
@@ -17,13 +19,17 @@ const userSchema = new Schema(
       required: true,
       minlength: 8,
     },
+    avatar: {
+      type: String,
+      default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
+    },
   },
   {
     timestamps: true,
   },
 );
 
-// хук: якщо username не заданий – ставимо email
+// username за замовчуванням = email
 userSchema.pre('save', function preSave(next) {
   if (!this.username) {
     this.username = this.email;
@@ -31,7 +37,7 @@ userSchema.pre('save', function preSave(next) {
   next();
 });
 
-// ховаємо пароль у JSON-відповіді
+// ховаємо пароль у відповіді
 userSchema.methods.toJSON = function toJSON() {
   const obj = this.toObject();
   delete obj.password;
